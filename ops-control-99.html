@@ -6,19 +6,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --navy: #0a1523; --gold: #c5a059; --cyan: #0ea5e9; }
-        body { background: var(--navy); color: white; font-family: 'Montserrat', sans-serif; padding: 40px; text-align: center; }
+        body { background: var(--navy); color: white; font-family: 'Montserrat', sans-serif; padding: 20px; text-align: center; }
         .panel { max-width: 450px; margin: auto; background: rgba(255,255,255,0.05); padding: 30px; border: 1px solid var(--gold); border-radius: 12px; backdrop-filter: blur(10px); }
-        input, select, button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; }
-        button { background: var(--gold); color: black; font-weight: 900; cursor: pointer; border: none; margin-top: 25px; transition: 0.3s; }
-        button:hover { background: #fff; }
+        input, select, button { width: 100%; padding: 15px; margin-top: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 1rem; }
+        
+        /* Professional Button States */
+        #activateBtn { background: var(--gold); color: black; font-weight: 900; cursor: pointer; border: none; margin-top: 25px; transition: 0.3s; text-transform: uppercase; }
+        #activateBtn:hover { background: #fff; }
+        #activateBtn:disabled { background: #444; color: #888; cursor: not-allowed; }
+
         label { display: block; text-align: left; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; }
+        
+        .incoming-requests { max-width: 950px; margin: 40px auto; background: rgba(255,255,255,0.06); border:1px solid #c5a059; border-radius: 12px; padding: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.8rem; min-width: 600px; }
+        th, td { padding: 12px; border: 1px solid rgba(255,255,255,0.1); text-align: left; }
+        th { color: var(--gold); background: rgba(255,255,255,0.05); text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="panel">
-        <h2 style="letter-spacing: 2px; font-family: 'Orbitron';">OPERATIONS COMMAND</h2>
-        <p style="font-size: 0.6rem; color: #888; margin-bottom: 20px;">SKYLINE GLOBAL LOGISTICS • ADMIN PORTAL</p>
+        <h2 style="letter-spacing: 2px; font-family: 'Orbitron'; color: var(--gold);">OPERATIONS COMMAND</h2>
+        <p style="font-size: 0.6rem; color: #888; margin-bottom: 20px;">ADMIN PORTAL • SATELLITE CONTROL</p>
 
         <label>TRANSIT MANIFEST ID</label>
         <input type="text" id="shipID" placeholder="e.g. SK-10022">
@@ -34,40 +43,41 @@
             <option value="DELIVERED">DELIVERED</option>
         </select>
 
-        <label>Latitude</label>
-        <input type="number" id="shipLat" step="0.000001" placeholder="e.g. 51.4700">
+        <label>Latitude (Coordinates)</label>
+        <input type="number" id="shipLat" step="any" placeholder="e.g. 51.4700">
 
-        <label>Longitude</label>
-        <input type="number" id="shipLng" step="0.000001" placeholder="e.g. -0.4543">
+        <label>Longitude (Coordinates)</label>
+        <input type="number" id="shipLng" step="any" placeholder="e.g. -0.4543">
 
         <button id="activateBtn">ACTIVATE MANIFEST</button>
     </div>
 
-    <!-- INCOMING REQUESTS -->
-    <section class="incoming-requests" style="max-width: 900px; margin: 40px auto; background: rgba(255,255,255,0.06); border:1px solid #c5a059; border-radius: 12px; padding: 20px;">
-        <h2 style="color: #c5a059; margin-bottom: 16px;">Incoming Requests</h2>
-        <table id="requestsTable" style="width: 100%; border-collapse: collapse;">
+    <section class="incoming-requests">
+        <h2 style="color: #c5a059; font-family: 'Orbitron'; font-size: 1rem; text-align: left;">INCOMING CLIENT REQUESTS</h2>
+        <table>
             <thead>
-                <tr style="background: rgba(255,255,255,0.1); text-transform: uppercase; font-size: 0.75rem;">
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Request ID</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Origin</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Destination</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Asset Class</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Weight</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Timestamp</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Actions</th>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Asset Class</th>
+                    <th>Weight</th>
+                    <th>Timestamp</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="requeststbody"></tbody>
+            <tbody id="requeststbody">
+                <tr><td colspan="7" style="text-align:center; padding:20px;">Initializing Satellite Link...</td></tr>
+            </tbody>
         </table>
     </section>
 
-    <!-- 1. LOAD FIREBASE COMPAT LIBRARIES (THE FIX) -->
+    <!-- FIREBASE COMPAT LIBRARIES -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
-        // 2. YOUR PRIVATE FIREBASE CONFIGURATION
+        // 1. FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCnRxlxUEezki8byWyLa9FljWzskEJNfDk",
             authDomain: "skyline-logistics.firebaseapp.com",
@@ -79,17 +89,17 @@
             measurementId: "G-SMF4L2VZ0K"
         };
 
-        // 3. INITIALIZE FIREBASE (COMPAT MODE)
+        // 2. INITIALIZE
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Incoming requests listener
-        function renderRequestsTable(snapshot) {
+        // 3. RENDER TABLE FUNCTION (Attached to window for global access)
+        window.renderRequestsTable = function(snapshot) {
             const tbody = document.getElementById('requeststbody');
             tbody.innerHTML = '';
 
             if (!snapshot.exists()) {
-                tbody.innerHTML = '<tr><td colspan="7" style="padding: 12px; text-align: center; color: #ccc;">No requests found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #888;">NO PENDING REQUESTS FOUND</td></tr>';
                 return;
             }
 
@@ -99,75 +109,36 @@
                 const row = document.createElement('tr');
 
                 row.innerHTML = `
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${key}</td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.origin || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.destination || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.assetClass || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.weight || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.timestamp || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">
-                        <button style="padding: 6px 10px; border-radius: 5px; border:none; background: #0ea5e9; color:#fff; cursor:pointer;" onclick="generateRequestId('${key}')">Generate ID</button>
+                    <td>${key}</td>
+                    <td>${request.origin || '-'}</td>
+                    <td>${request.dest || request.destination || '-'}</td>
+                    <td>${request.asset || request.assetClass || '-'}</td>
+                    <td>${request.weight || '-'} KG</td>
+                    <td>${request.time || request.timestamp || '-'}</td>
+                    <td>
+                        <button style="width:auto; padding: 5px 10px; font-size:0.7rem; background:#0ea5e9; color:white; margin:0;" onclick="window.generateIdForRequest('${key}')">ISSUE ID</button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
-        }
+        };
 
-        function generateRequestId(key) {
-            const generatedId = 'MAN-' + Math.floor(100000 + Math.random() * 900000);
-            database.ref('requests/' + key).update({ generatedId })
-                .then(() => {
-                    alert('Generate ID: ' + generatedId);
-                })
-                .catch((error) => {
-                    alert('Error generating ID: ' + error.message);
-                });
-        }
+        // 4. ACTION: GENERATE ID FOR CLIENT
+        window.generateIdForRequest = function(key) {
+            const generatedId = 'SK-' + Math.floor(100000 + Math.random() * 900000);
+            database.ref('requests/' + key).update({ generatedId: generatedId })
+                .then(() => alert('SUCCESS: Transit ID ' + generatedId + ' issued to client.'))
+                .catch((error) => alert('Error: ' + error.message));
+        };
 
+        // 5. LISTEN FOR REQUESTS
         database.ref('requests').on('value', (snapshot) => {
-            renderRequestsTable(snapshot);
-        }, (error) => {
-            console.error('Error loading requests:', error);
+            window.renderRequestsTable(snapshot);
         });
 
-        // 4. ACTION FUNCTION
-        document.getElementById('activateBtn').onclick = function() {
+        // 6. ACTION: ACTIVATE MANIFEST (THE MAIN BUTTON)
+        const actBtn = document.getElementById('activateBtn');
+        actBtn.onclick = function() {
             const id = document.getElementById('shipID').value.trim();
             const loc = document.getElementById('hubLoc').value.trim();
-            const stat = document.getElementById('shipStat').value;
-            const lat = parseFloat(document.getElementById('shipLat').value);
-            const lng = parseFloat(document.getElementById('shipLng').value);
-
-            if(!id || !loc) {
-                alert("Critical Error: Transit ID and Location required.");
-                return;
-            }
-
-            if(Number.isNaN(lat) || Number.isNaN(lng)) {
-                alert("Critical Error: Valid latitude and longitude required.");
-                return;
-            }
-
-            // Save to Firebase Cloud
-            database.ref('shipments/' + id).set({
-                location: loc,
-                status: stat,
-                lat: lat,
-                lng: lng,
-                updatedAt: new Date().toLocaleString()
-            })
-            .then(() => {
-                alert("SUCCESS: Manifest " + id + " is now LIVE globally.");
-                document.getElementById('shipID').value = "";
-                document.getElementById('hubLoc').value = "";
-                document.getElementById('shipLat').value = "";
-                document.getElementById('shipLng').value = "";
-                document.getElementById('shipStat').value = "IN TRANSIT";
-            })
-            .catch((error) => {
-                alert("Database Connection Error: " + error.message);
-            });
-        };
-    </script>
-</body>
-</html>
+            const stat = docum
