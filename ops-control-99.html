@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Skyline Admin | Global Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --navy: #0a1523; --gold: #c5a059; --cyan: #0ea5e9; }
+        body { background: var(--navy); color: white; font-family: 'Montserrat', sans-serif; padding: 40px; text-align: center; }
+        .panel { max-width: 450px; margin: auto; background: rgba(255,255,255,0.05); padding: 30px; border: 1px solid var(--gold); border-radius: 12px; backdrop-filter: blur(10px); }
+        input, select, button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; }
+        button { background: var(--gold); color: black; font-weight: 900; cursor: pointer; border: none; margin-top: 25px; transition: 0.3s; }
+        button:hover { background: #fff; }
+        label { display: block; text-align: left; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h2 style="letter-spacing: 2px; font-family: 'Orbitron';">OPERATIONS COMMAND</h2>
+        <p style="font-size: 0.6rem; color: #888; margin-bottom: 20px;">SKYLINE GLOBAL LOGISTICS • ADMIN PORTAL</p>
+
+        <label>TRANSIT MANIFEST ID</label>
+        <input type="text" id="shipID" placeholder="e.g. SK-10022">
+
+        <label>CURRENT HUB LOCATION</label>
+        <input type="text" id="hubLoc" placeholder="e.g. London Heathrow">
+
+        <label>TRANSIT STATUS</label>
+        <select id="shipStat">
+            <option value="IN TRANSIT">IN TRANSIT</option>
+            <option value="CUSTOMS CLEARANCE">CUSTOMS CLEARANCE</option>
+            <option value="ON HOLD">ON HOLD</option>
+            <option value="DELIVERED">DELIVERED</option>
+        </select>
+
+        <label>Latitude</label>
+        <input type="number" id="shipLat" step="0.000001" placeholder="e.g. 51.4700">
+
+        <label>Longitude</label>
+        <input type="number" id="shipLng" step="0.000001" placeholder="e.g. -0.4543">
+
+        <button id="activateBtn">ACTIVATE MANIFEST</button>
+    </div>
+
+    <!-- INCOMING REQUESTS -->
+    <section class="incoming-requests" style="max-width: 900px; margin: 40px auto; background: rgba(255,255,255,0.06); border:1px solid #c5a059; border-radius: 12px; padding: 20px;">
+        <h2 style="color: #c5a059; margin-bottom: 16px;">Incoming Requests</h2>
+        <table id="requestsTable" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.1); text-transform: uppercase; font-size: 0.75rem;">
+                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Request ID</th>
+                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Origin</th>
+                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Destination</th>
+                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Asset Class</th>
+                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Weight</th>
+                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Timestamp</th>
+                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="requeststbody"></tbody>
+        </table>
+    </section>
+
+    <!-- 1. LOAD FIREBASE COMPAT LIBRARIES (THE FIX) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <script>
+        // 2. YOUR PRIVATE FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnRxlxUEezki8byWyLa9FljWzskEJNfDk",
+            authDomain: "skyline-logistics.firebaseapp.com",
+            databaseURL: "https://skyline-logistics-default-rtdb.firebaseio.com",
+            projectId: "skyline-logistics",
+            storageBucket: "skyline-logistics.firebasestorage.app",
+            messagingSenderId: "111278945331",
+            appId: "1:111278945331:web:5565f3b4504fd62ecd5f46",
+            measurementId: "G-SMF4L2VZ0K"
+        };
+
+        // 3. INITIALIZE FIREBASE (COMPAT MODE)
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Incoming requests listener
+        function renderRequestsTable(snapshot) {
+            const tbody = document.getElementById('requeststbody');
+            tbody.innerHTML = '';
+
+            if (!snapshot.exists()) {
+                tbody.innerHTML = '<tr><td colspan="7" style="padding: 12px; text-align: center; color: #ccc;">No requests found</td></tr>';
+                return;
+            }
+
+            snapshot.forEach((child) => {
+                const key = child.key;
+                const request = child.val();
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${key}</td>
+                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.origin || '-'}<\/td>
+                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.destination || '-'}<\/td>
+                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.assetClass || '-'}<\/td>
+                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.weight || '-'}<\/td>
+                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.timestamp || '-'}<\/td>
+                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">
+                        <button style="padding: 6px 10px; border-radius: 5px; border:none; background: #0ea5e9; color:#fff; cursor:pointer;" onclick="generateRequestId('${key}')">Generate ID</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function generateRequestId(key) {
+            const generatedId = 'MAN-' + Math.floor(100000 + Math.random() * 900000);
+            database.ref('requests/' + key).update({ generatedId })
+                .then(() => {
+                    alert('Generate ID: ' + generatedId);
+                })
+                .catch((error) => {
+                    alert('Error generating ID: ' + error.message);
+                });
+        }
+
+        database.ref('requests').on('value', (snapshot) => {
+            renderRequestsTable(snapshot);
+        }, (error) => {
+            console.error('Error loading requests:', error);
+        });
+
+        // 4. ACTION FUNCTION
+        document.getElementById('activateBtn').onclick = function() {
+            const id = document.getElementById('shipID').value.trim();
+            const loc = document.getElementById('hubLoc').value.trim();
+            const stat = document.getElementById('shipStat').value;
+            const lat = parseFloat(document.getElementById('shipLat').value);
+            const lng = parseFloat(document.getElementById('shipLng').value);
+
+            if(!id || !loc) {
+                alert("Critical Error: Transit ID and Location required.");
+                return;
+            }
+
+            if(Number.isNaN(lat) || Number.isNaN(lng)) {
+                alert("Critical Error: Valid latitude and longitude required.");
+                return;
+            }
+
+            // Save to Firebase Cloud
+            database.ref('shipments/' + id).set({
+                location: loc,
+                status: stat,
+                lat: lat,
+                lng: lng,
+                updatedAt: new Date().toLocaleString()
+            })
+            .then(() => {
+                alert("SUCCESS: Manifest " + id + " is now LIVE globally.");
+                document.getElementById('shipID').value = "";
+                document.getElementById('hubLoc').value = "";
+                document.getElementById('shipLat').value = "";
+                document.getElementById('shipLng').value = "";
+                document.getElementById('shipStat').value = "IN TRANSIT";
+            })
+            .catch((error) => {
+                alert("Database Connection Error: " + error.message);
+            });
+        };
+    </script>
+</body>
+</html>
