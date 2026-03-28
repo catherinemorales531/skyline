@@ -2,373 +2,145 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Skyline Global | World Operations</title>
+    
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-rJSb7B2sU17v0wQdxUJ4qw08XYzlD5TQXeFngDzmDdc=" crossorigin="" />
+    
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- link to your private CSS file -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-DovHgqf1n3k9Zv4HXEEc2xVwR9gHT3cSSETXX2sAP+g=" crossorigin=""></script>
+    <style>
+        /* Essential Inline Fixes for Map & Logo */
+        #map { 
+            height: 400px; 
+            width: 100%; 
+            border-radius: 12px; 
+            margin: 20px 0; 
+            border: 1px solid var(--gold);
+            z-index: 10;
+        }
+        /* Dark Mode Map Filter */
+        .leaflet-tile-pane { filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3); }
+        
+        .brand-block img { 
+            mix-blend-mode: screen; 
+            filter: brightness(1.2); 
+            height: 45px; 
+        }
+    </style>
 </head>
 <body>
 
     <!-- TOP TICKER BAR -->
-    <div class="broadcast-bar">
-        <div class="ticker-track" id="ticker"></div>
+    <div class="ops-ticker">
+        <div class="ticker-track" id="tickerTrack"></div>
     </div>
 
-    <!-- index.html -->
+    <!-- NAVIGATION -->
     <nav>
         <div class="nav-container">
-            <!-- BRAND BLOCK -->
-            <div class="brand-block" onclick="showPage('home')">
-                <img src="logo.png" alt="Skyline" style="mix-blend-mode: multiply;">
+            <div class="brand-block" onclick="showView('home')">
+                <img src="logo.png" alt="Skyline">
                 <div class="brand-text">
-                    <span style="color:#fff">SKYLINE GLOBAL</span>
-                    <span style="color:var(--cyan)">FINCLOGISTICS</span>
+                    <span style="color:#fff; font-weight:900;">SKYLINE GLOBAL</span>
+                    <span style="color:var(--cyan); font-size:0.7rem; display:block;">FINCLOGISTICS</span>
                 </div>
             </div>
-            <!-- NAV LINKS -->
             <ul class="nav-links">
-                <li onclick="showPage('home')">OVERVIEW</li>
-                <li onclick="showPage('book')">GET QUOTE</li>
+                <li onclick="showView('home')">OVERVIEW</li>
+                <li onclick="showView('quote')">GET QUOTE</li>
+                <li onclick="showView('resources')">RESOURCES</li>
                 <li onclick="showPage('login')" class="nav-cta">CLIENT PORTAL</li>
             </ul>
         </div>
     </nav>
 
     <main id="app">
-        <!-- Ensure this ID is exactly 'home' -->
+        <!-- PAGE: HOME -->
         <section id="home" class="view active"> 
             <div class="hero">
                 <video class="video-bg" autoplay muted loop playsinline><source src="bg-video.mp4" type="video/mp4"></video>
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
+                    <p style="letter-spacing: 5px; color: var(--gold); font-weight: 700; font-size: 0.8rem;">ESTABLISHED 2014</p>
                     <h1>SKYLINE GLOBAL</h1>
                     <div class="track-module">
-                        <!-- FIX: Ensure this ID is manifestID -->
-                        <input type="text" id="manifestID" placeholder="Enter Transit ID...">
+                        <input type="text" id="manifestID" placeholder="Enter Transit ID (e.g. SK-7700)">
                         <button onclick="handleVerify()">TRACK SHIPMENT</button>
                     </div>
                 </div>
             </div>
         </section>
         
-        <!-- Ensure this ID is exactly 'dashboard' -->
+        <!-- PAGE: DASHBOARD / CONSOLE -->
         <section id="dashboard" class="view">
-            <div class="dashboard-wrap">
-                <h2>OPERATIONS CONSOLE</h2>
-                <div id="map"></div> <!-- The Leaflet Map goes here -->
+            <div class="container">
+                <h2 style="font-family:'Orbitron'; color:var(--gold);">OPERATIONS CONSOLE</h2>
+                
+                <div id="map"></div> 
+
+                <div class="portal-section" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin-top: 20px; text-align: left;">
+                    <h3 style="color: var(--cyan); margin-bottom: 10px;">Live Manifest Data</h3>
+                    <p><strong>ID:</strong> <span id="resID">--</span></p>
+                    <p><strong>CURRENT NODE:</strong> <span id="resLoc">--</span></p>
+                    <p><strong>STATUS:</strong> <span id="resStat">--</span></p>
+                    <p><strong>LAST SATELLITE UPDATE:</strong> <span id="resTime">--</span></p>
+                </div>
             </div>
         </section>
+
+        <!-- PAGE: QUOTE -->
+        <div id="quote" class="view">
+            <div class="container">
+                <h2>Request a Freight Quote</h2>
+                <form class="quote-form" onsubmit="handleBooking(event)">
+                    <div class="grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <input type="text" id="originPort" placeholder="Origin Port" required>
+                        <input type="text" id="destinationPort" placeholder="Destination Port" required>
+                    </div>
+                    <select id="assetClass" style="width:100%; margin-top:15px; padding:10px;">
+                        <option value="FCL">Full Container (FCL)</option>
+                        <option value="Air">Air Freight</option>
+                        <option value="Instruments">Financial Instruments</option>
+                    </select>
+                    <input type="number" id="shipmentWeight" placeholder="Weight (KG)" style="width:100%; margin-top:15px;">
+                    <button type="submit" class="btn-main" style="width:100%; background:var(--gold); padding:15px; margin-top:20px; font-weight:900;">SUBMIT TO OPERATIONS</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGE: RESOURCES -->
+        <div id="resources" class="view">
+            <div class="container">
+                <h2>Resource Center</h2>
+                <div style="background:rgba(255,255,255,0.05); padding:30px; border-radius:10px;">
+                    <h3>Institutional Downloads</h3>
+                    <p style="margin-top:15px;"><i class="fas fa-file-pdf"></i> Standard Bill of Lading (Verified)</p>
+                    <p style="margin-top:10px;"><i class="fas fa-file-pdf"></i> Customs Declaration Template</p>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- SECTION: QUOTE REQUEST -->
-    <div id="quote" class="view">
-        <section class="form-section">
-            <h2>Request a Freight Quote</h2>
-            <form class="quote-form" onsubmit="handleBooking(event)">
-                <div class="form-group">
-                    <label>Type of Shipment *</label>
-                    <select id="assetClass" required>
-                        <option value="">Select shipment type...</option>
-                        <option value="FCL">FCL (Full Container Load)</option>
-                        <option value="LCL">LCL (Less Than Container Load)</option>
-                        <option value="air">Air Freight</option>
-                        <option value="road">Road/Land Transport</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Incoterms *</label>
-                    <select required>
-                        <option value="">Select Incoterms...</option>
-                        <option value="FOB">FOB (Free on Board)</option>
-                        <option value="EXW">EXW (Ex Works)</option>
-                        <option value="CIF">CIF (Cost, Insurance & Freight)</option>
-                        <option value="DDP">DDP (Delivered Duty Paid)</option>
-                        <option value="DAP">DAP (Delivered at Place)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Commodity Type *</label>
-                    <select required>
-                        <option value="">Select commodity type...</option>
-                        <option value="general">General Cargo</option>
-                        <option value="hazardous">Hazardous Materials</option>
-                        <option value="perishable">Perishable Goods</option>
-                        <option value="oversized">Oversized/Heavy Lift</option>
-                        <option value="temperature">Temperature-Controlled</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Financial Services Needed *</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox"> Customs Clearance</label>
-                        <label><input type="checkbox"> Cargo Insurance</label>
-                        <label><input type="checkbox"> Trade Finance/LC</label>
-                        <label><input type="checkbox"> Escrow Services</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Origin Port/Location *</label>
-                    <input type="text" id="originPort" placeholder="e.g., Shanghai, Port of LA" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Destination Port/Location *</label>
-                    <input type="text" id="destinationPort" placeholder="e.g., Rotterdam, NY" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Weight (kg) *</label>
-                    <input type="number" id="shipmentWeight" placeholder="Total shipment weight" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Contact Email *</label>
-                    <input type="email" placeholder="your@company.com" required>
-                </div>
-
-                <button type="submit" class="btn-submit">Submit Quote Request</button>
-            </form>
-        </section>
-    </div>
-
-    <!-- SECTION: RESOURCE CENTER -->
-    <div id="resources" class="view">
-        <section class="resources-section">
-            <h2>Resource Center</h2>
-            
-            <div class="resource-grid">
-                <!-- Currency Converter -->
-                <div class="resource-card">
-                    <h3><i class="fas fa-exchange-alt"></i> Currency Converter</h3>
-                    <div class="converter">
-                        <input type="number" id="amount" placeholder="Amount" value="1000">
-                        <select id="fromCurrency">
-                            <option>USD</option>
-                            <option>EUR</option>
-                            <option>GBP</option>
-                            <option>CNY</option>
-                            <option>JPY</option>
-                        </select>
-                        <span>=</span>
-                        <input type="number" id="result" readonly placeholder="Converted amount">
-                        <select id="toCurrency">
-                            <option>EUR</option>
-                            <option>USD</option>
-                            <option>GBP</option>
-                            <option>CNY</option>
-                            <option>JPY</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Glossary -->
-                <div class="resource-card">
-                    <h3><i class="fas fa-book"></i> Logistics Glossary</h3>
-                    <div class="glossary-list">
-                        <div class="glossary-item">
-                            <strong>Incoterms:</strong> International Commercial Terms that define buyer/seller responsibilities in transactions.
-                        </div>
-                        <div class="glossary-item">
-                            <strong>Bill of Lading (BOL):</strong> Legal document issued by a carrier acknowledging receipt of cargo for shipment.
-                        </div>
-                        <div class="glossary-item">
-                            <strong>FCL/LCL:</strong> Full Container Load (exclusive use) vs. Less Than Container Load (shared space).
-                        </div>
-                        <div class="glossary-item">
-                            <strong>HAWB:</strong> House Air Waybill; freight forwarder's receipt for air cargo.
-                        </div>
-                        <div class="glossary-item">
-                            <strong>Customs Bond:</strong> Financial guarantee securing payment of duties and taxes.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Downloads -->
-                <div class="resource-card">
-                    <h3><i class="fas fa-download"></i> Downloadable Templates</h3>
-                    <div class="downloads">
-                        <a href="#" class="download-link"><i class="fas fa-file-pdf"></i> Proforma Invoice Template</a>
-                        <a href="#" class="download-link"><i class="fas fa-file-pdf"></i> Shipper's Letter of Instruction (SLI)</a>
-                        <a href="#" class="download-link"><i class="fas fa-file-pdf"></i> Commercial Invoice</a>
-                        <a href="#" class="download-link"><i class="fas fa-file-pdf"></i> Packing List Template</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- SECTION: LOGIN (Client Portal) -->
-    <div id="login" class="view">
-        <div class="portal-container">
-            <div class="auth-box">
-                <h2>CLIENT PORTAL</h2>
-                <p class="portal-subtitle">Access your shipments, documents, and invoices</p>
-                <input type="email" placeholder="Email Address">
-                <input type="password" placeholder="Access Key">
-                <button onclick="showView('dashboard')">LOGIN TO PORTAL</button>
-                <p class="portal-footer">First time? Contact: onboarding@skylineglobalfinclogistics.com</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION: CLIENT DASHBOARD/PORTAL -->
-    <div id="dashboard" class="view">
-        <div class="dashboard-container">
-            <h2>OPERATIONS CONSOLE</h2>
-
-            <div id="map"></div>
-
-            <!-- Active Manifest Details -->
-            <div class="portal-section" style="margin-bottom: 20px; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.4); border-radius: 8px; padding: 20px;">
-                <h3 style="margin-bottom: 12px; color: var(--cyan); letter-spacing: 1px;">Active Manifest Details</h3>
-                <div id="activeManifestDetails" style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 16px; font-family: 'Orbitron', 'Montserrat', sans-serif;">
-                    <p style="margin: 8px 0; color: #bfdffd; font-size: 0.95rem;"><strong>Location:</strong> <span id="manifestLocation">--</span></p>
-                    <p style="margin: 8px 0; color: #bfdffd; font-size: 0.95rem;"><strong>Status:</strong> <span id="manifestStatus">--</span></p>
-                    <p style="margin: 8px 0; color: #bfdffd; font-size: 0.95rem;"><strong>Updated At:</strong> <span id="manifestTime">--</span></p>
-                    <p id="manifestMessage" style="margin:8px 0; font-size:0.9rem; color:#9bbbd2;">No manifest verified yet.</p>
-                </div>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="stat-grid">
-                <div class="stat">
-                    <h3>ACTIVE SHIPMENTS</h3>
-                    <p>12</p>
-                </div>
-                <div class="stat">
-                    <h3>IN TRANSIT</h3>
-                    <p>8</p>
-                </div>
-                <div class="stat">
-                    <h3>DELIVERED</h3>
-                    <p>1,284</p>
-                </div>
-                <div class="stat">
-                    <h3>SYSTEM STATUS</h3>
-                    <p style="color:#0ea5e9">SECURE</p>
-                </div>
-            </div>
-
-            <!-- Shipment List -->
-            <div class="portal-section">
-                <h3>Recent Shipments</h3>
-                <table class="shipment-table">
-                    <thead>
-                        <tr>
-                            <th>Shipment ID</th>
-                            <th>Destination</th>
-                            <th>Status</th>
-                            <th>ETA</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>SG-2024-001234</td>
-                            <td>Rotterdam, Netherlands</td>
-                            <td><span class="status in-transit">In Transit</span></td>
-                            <td>2026-04-05</td>
-                            <td><button class="btn-small">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <td>SG-2024-001235</td>
-                            <td>Singapore Port</td>
-                            <td><span class="status delivered">Delivered</span></td>
-                            <td>2026-03-20</td>
-                            <td><button class="btn-small">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <td>SG-2024-001236</td>
-                            <td>New York, USA</td>
-                            <td><span class="status in-transit">In Transit</span></td>
-                            <td>2026-03-28</td>
-                            <td><button class="btn-small">View Details</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Documents & Invoices -->
-            <div class="portal-section">
-                <h3>Documents & Invoices</h3>
-                <div class="documents-grid">
-                    <div class="doc-card">
-                        <i class="fas fa-file-invoice"></i>
-                        <h4>Commercial Invoices</h4>
-                        <button class="btn-small">Download</button>
-                    </div>
-                    <div class="doc-card">
-                        <i class="fas fa-list"></i>
-                        <h4>Packing Lists</h4>
-                        <button class="btn-small">Download</button>
-                    </div>
-                    <div class="doc-card">
-                        <i class="fas fa-ship"></i>
-                        <h4>Bills of Lading</h4>
-                        <button class="btn-small">Download</button>
-                    </div>
-                    <div class="doc-card">
-                        <i class="fas fa-receipt"></i>
-                        <h4>Freight Invoices</h4>
-                        <button class="btn-small">View & Pay</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- FOOTER -->
-    <footer id="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <img src="logo.png" height="50" alt="Skyline Global">
-                <p>Strategic Financial Logistics | Global Trade Finance Solutions</p>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p>HQ: 123 Global Logistics Way, New York, NY 10001</p>
-                <p>Email: operations@skylineglobalfinclogistics.com</p>
-                <p>Phone: +1 (212) 555-TRADE</p>
-            </div>
-            <div class="footer-section">
-                <h4>Support</h4>
-                <p>24/7 Customer Service: support@skylineglobalfinclogistics.com</p>
-                <p>Onboarding: onboarding@skylineglobalfinclogistics.com</p>
-            </div>
-            <div class="footer-section">
-                <h4>Follow Us</h4>
-                <p>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                </p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Skyline Global. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
-        </div>
+    <footer>
+        <p style="color:var(--gold); font-weight:900; letter-spacing:2px;">SKYLINE GLOBAL FINCLOGISTICS</p>
+        <p style="font-size:0.6rem; color:#666; margin-top:10px;">&copy; 2026 STRATEGIC ASSET TRANSIT. ALL RIGHTS RESERVED.</p>
     </footer>
-
-    <!-- Scripts -->
-    <script src="script.js"></script>
 
     <!-- Firebase Compat scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
+        // 1. FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: 'AIzaSyCnRxlxUEezki8byWyLa9FljWzskEJNfDk',
             authDomain: 'skyline-logistics.firebaseapp.com',
@@ -376,67 +148,88 @@
             projectId: 'skyline-logistics',
             storageBucket: 'skyline-logistics.firebasestorage.app',
             messagingSenderId: '111278945331',
-            appId: '1:111278945331:web:5565f3b4504fd62ecd5f46',
-            measurementId: 'G-SMF4L2VZ0K'
+            appId: '1:111278945331:web:5565f3b4504fd62ecd5f46'
         };
 
         firebase.initializeApp(firebaseConfig);
-        window.database = firebase.database();
+        const database = firebase.database();
 
-        let map = null;
-        let marker = null;
-
-        window.updateMap = function(lat, lng) {
-            if (!map) {
-                map = L.map('map').setView([lat, lng], 8);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
+        // 2. SPA ROUTER
+        window.showView = function(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            const target = document.getElementById(id);
+            if(target) {
+                target.classList.add('active');
+                window.scrollTo({top: 0, behavior: 'instant'});
             }
-
-            if (!marker) {
-                marker = L.marker([lat, lng]).addTo(map);
-            } else {
-                marker.setLatLng([lat, lng]);
-            }
-
-            map.panTo([lat, lng], { animate: true, duration: 1 });
         }
 
+        // 3. TRACKING LOGIC (With Map)
+        let map, marker;
+        window.handleVerify = function() {
+            const id = document.getElementById('manifestID').value.trim();
+            if(!id) return alert("Please enter a Transit ID");
 
+            database.ref('shipments/' + id).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    showView('dashboard');
+                    
+                    // Update Text Details
+                    document.getElementById('resID').innerText = id;
+                    document.getElementById('resLoc').innerText = data.location;
+                    document.getElementById('resStat').innerText = data.status;
+                    document.getElementById('resTime').innerText = data.updatedAt;
 
-        function handleBooking(event) {
+                    // Update Map
+                    const pos = [data.lat, data.lng];
+                    if (!map) {
+                        map = L.map('map').setView(pos, 10);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                        marker = L.marker(pos).addTo(map);
+                    } else {
+                        marker.setLatLng(pos);
+                        map.panTo(pos);
+                    }
+                } else {
+                    alert("ID not recognized by the Skyline Global network.");
+                }
+            });
+        }
+
+        // 4. BOOKING / QUOTE LOGIC
+        window.handleBooking = function(event) {
             event.preventDefault();
-
-            const origin = document.getElementById('originPort').value.trim();
-            const destination = document.getElementById('destinationPort').value.trim();
-            const assetClass = document.getElementById('assetClass').value;
-            const weight = document.getElementById('shipmentWeight').value;
-
-            if (!origin || !destination || !assetClass || !weight) {
-                return alert('Please fill in Origin, Destination, Asset Class, and Weight.');
-            }
-
             const requestData = {
-                origin,
-                destination,
-                assetClass,
-                weight,
-                timestamp: new Date().toISOString()
+                origin: document.getElementById('originPort').value,
+                dest: document.getElementById('destinationPort').value,
+                asset: document.getElementById('assetClass').value,
+                time: new Date().toLocaleString()
             };
 
-            const requestRef = db.ref('requests').push();
-            requestRef.set(requestData)
-                .then(() => {
-                    alert('Manifest Request Sent');
-                    document.querySelector('.quote-form').reset();
-                    showView('home');
-                })
-                .catch((error) => {
-                    alert('Database write error: ' + error.message);
-                });
+            database.ref('requests').push(requestData).then(() => {
+                alert("Manifest Request Logged with Operations Hub.");
+                showView('home');
+            });
         }
+
+        // 5. TICKER ENGINE
+        const hubs = [{n:"ZURICH",f:"🇨🇭"},{n:"LONDON",f:"🇬🇧"},{n:"DUBAI",f:"🇦🇪"},{n:"SHANGHAI",f:"🇨🇳"},{n:"SINGAPORE",f:"🇸🇬"}];
+        window.onload = function() {
+            const track = document.getElementById('tickerTrack');
+            const fullList = Array(20).fill(hubs).flat();
+            fullList.forEach(h => {
+                const temp = Math.floor(Math.random() * 15) + 10;
+                const div = document.createElement('div');
+                div.className = 'ticker-item';
+                div.innerHTML = `<span style="font-size:1.4rem; margin-right:10px;">${h.f}</span>
+                    <div style="line-height:1.2">
+                        <p style="font-size:0.55rem; font-weight:900;">${h.n} HUB</p>
+                        <p style="font-size:0.5rem; color:#c5a059;">SECURE / ${temp}°C</p>
+                    </div>`;
+                track.appendChild(div);
+            });
+        };
     </script>
 </body>
 </html>
