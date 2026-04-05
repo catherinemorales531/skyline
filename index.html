@@ -563,6 +563,13 @@ window.smartsupp||(function(d) {
   c.type='text/javascript';c.charset='utf-8';c.async=true;
   c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
 })(document);
+  function openSupportChat() {
+    if (window.smartsupp) {
+        window.smartsupp('chat:open');
+    } else {
+        alert("Connecting to Skyline Support Hub...");
+    }
+}      
 </script>
 </body>
 </html>
