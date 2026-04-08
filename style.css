@@ -295,8 +295,13 @@ footer { background:rgba(8,13,20,0.95); border-top:1px solid var(--border); padd
     .documents-grid { grid-template-columns: 1fr; }
 }
 /* Move chat bubble up so it doesn't block the mobile navigation bar */
+/* Lifts the chat bubble on mobile so it doesn't block the Gold Nav Bar */
+#smartsupp-widget-container {
+    z-index: 999999 !important;
+}
+
 @media (max-width: 768px) {
     #smartsupp-widget-container {
-        bottom: 85px !important;
+        bottom: 90px !important; /* Adjust this number if needed */
     }
 }
