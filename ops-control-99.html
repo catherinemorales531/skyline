@@ -206,14 +206,8 @@
 <script>
 // --- NEW EMAILJS CONFIGURATION ---
 
-// --- UPDATED EMAIL CONFIGURATION ---
-const EMAIL_PUBLIC_KEY = "Y9hlfg-yd7ebI1EI3";
-const EMAIL_SERVICE_ID = "service_z0uiqdo"; // Your new SMTP/Gmail Service
-const EMAIL_TEMPLATE_ID = "template_s3dkn8r"; // Ensure this matches your dashboard
-
-(function() {
-    emailjs.init(EMAIL_PUBLIC_KEY);
-})();
+// Ensure this matches the key from your NEW account exactly
+emailjs.init("g2yPLxk1zUjO_yxUw");
 
 function sendGeneralMessage() {
     const btn = document.getElementById('msgBtn');
@@ -235,18 +229,22 @@ function sendGeneralMessage() {
         location: "Skyline Global Operations Hub (NYC)"
     };
 
-    emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams)
-        .then(() => {
-            alert("OFFICIAL DOCUMENT DISPATCHED SUCCESSFULLY");
-            btn.innerText = "DISPATCH SECURE MESSAGE";
-            btn.disabled = false;
-            // Clear inputs
-            document.getElementById('msgEmail').value = "";
-            document.getElementById('msgBody').value = "";
-        }, (error) => {
-            alert("SATELLITE LINK FAILED: " + JSON.stringify(error));
-            btn.disabled = false;
-        });
+    // Double check your Service ID is exactly what you see in the dashboard
+    emailjs.send("service_z0uiqdo", "template_s3dkn8r", templateParams)
+    .then(() => {
+        alert("OFFICIAL DOCUMENT DISPATCHED SUCCESSFULLY");
+        btn.innerText = "DISPATCH SECURE MESSAGE";
+        btn.disabled = false;
+        // Clear inputs
+        document.getElementById('msgEmail').value = "";
+        document.getElementById('msgBody').value = "";
+    })
+    .catch((error) => {
+        // This will now show you more detail if it fails again
+        console.error("EmailJS Error:", error);
+        alert("SATELLITE LINK FAILED: " + error.text);
+        btn.disabled = false;
+    });
 }
 
 // Attach event listener to the button
