@@ -43,6 +43,21 @@
         <button id="activateBtn">ACTIVATE MANIFEST</button>
     </div>
 
+        <!-- COMMUNICATION HUB PANEL -->
+        <div class="panel" style="margin-top: 40px;">
+            <h2 style="letter-spacing: 2px; font-family: 'Orbitron'; color: var(--gold);">COMMUNICATION HUB</h2>
+            <label for="commEmail">Customer Email</label>
+                <input type="email" id="msgEmail" placeholder="e.g. client@email.com" style="background: var(--navy); border: 1px solid var(--gold); color: white;">
+
+                <label for="msgSubject">Subject</label>
+                <input type="text" id="msgSubject" placeholder="Subject" style="background: var(--navy); border: 1px solid var(--gold); color: white;">
+
+                <label for="msgBody">Message Body</label>
+                <textarea id="msgBody" rows="7" placeholder="Type your message here..." style="background: var(--navy); border: 1px solid var(--gold); color: white; width: 100%; margin-top: 15px; border-radius: 5px; padding: 15px; resize: vertical;"></textarea>
+
+                <button id="msgBtn" style="background: var(--gold); color: black; font-weight: 900; margin-top: 25px; border: none;">DISPATCH SECURE MESSAGE</button>
+        </div>
+
     <!-- INCOMING REQUESTS -->
     <section class="incoming-requests" style="max-width: 900px; margin: 40px auto; background: rgba(255,255,255,0.06); border:1px solid #c5a059; border-radius: 12px; padding: 20px;">
         <h2 style="color: #c5a059; margin-bottom: 16px;">Incoming Requests</h2>
@@ -68,6 +83,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
+        // --- CRITICAL: UPDATE THESE 3 FROM YOUR NEW ACCOUNT ---
+        const EMAILJS_PUBLIC_KEY = "g2yPLxk1zUjO_yxUw";   // Found in Account -> API Keys
+        const EMAILJS_SERVICE_ID = "service_jn8hfka";  // Found in Email Services
+        const EMAILJS_TEMPLATE_ID = "template_utvksln"; // Found in Email Templates
         // 2. YOUR PRIVATE FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyCnRxlxUEezki8byWyLa9FljWzskEJNfDk",
@@ -170,16 +189,70 @@
             });
         };
     </script>
-    <!-- Smartsupp Live Chat script -->
-<script type="text/javascript">
-var _smartsupp = _smartsupp || {};
-_smartsupp.key = '2f8be95fc84aebc38d34f51dff1c64357f3f60c3';
-window.smartsupp||(function(d) {
-  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
-  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
-  c.type='text/javascript';c.charset='utf-8';c.async=true;
-  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
-})(document);
+</script>
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+// --- NEW EMAILJS CONFIGURATION ---
+const PUBLIC_KEY = "g2yPLxk1zUjO_yxUw";
+const SERVICE_ID = "service_jn8hfka";
+const TEMPLATE_ID = "template_utvksln";
+
+// 1. Initialize with your new Public Key
+(function() {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+})();
+
+// 2. The Updated Function
+function sendGeneralMessage() {
+    // 1. Capture the data
+    const recipient = document.getElementById('msgEmail').value.trim();
+    const manifest = document.getElementById('msgSubject').value.trim();
+    const body = document.getElementById('msgBody').value.trim();
+    const btn = document.getElementById('msgBtn');
+
+    // 2. Simple Validation
+    if (!recipient || !manifest || !body) {
+        return alert("Error: Recipient, Subject, and Message are required.");
+    }
+
+    // 3. Visual UI feedback
+    btn.innerText = "ENCRYPTING & DISPATCHING...";
+    btn.disabled = true;
+
+    // 4. Map the parameters to your template
+    const templateParams = {
+        to_email: recipient,
+        manifest_id: manifest,
+        message: body,
+        location: "Skyline Global Operations Hub (NYC)"
+    };
+
+    // 5. SEND
+    emailjs.send('service_z0uiqdo', 'template_s3dkn8r', templateParams)
+        .then(() => {
+            alert('DISPATCH SUCCESS: NOTIFICATION SENT TO SATELLITE NETWORK');
+            btn.innerText = "DISPATCH SECURE MESSAGE";
+            btn.disabled = false;
+            // Clear inputs
+            document.getElementById('msgEmail').value = "";
+            document.getElementById('msgBody').value = "";
+        })
+        .catch((err) => {
+            alert("SATELLITE ERROR: " + JSON.stringify(err));
+            btn.innerText = "DISPATCH SECURE MESSAGE";
+            btn.disabled = false;
+        });
+}
+
+// Attach event listener to the button
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('msgBtn');
+    if (btn) {
+        btn.addEventListener('click', sendGeneralMessage);
+    }
+});
 </script>
 </body>
 </html>
