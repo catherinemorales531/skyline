@@ -12,6 +12,16 @@
         button { background: var(--gold); color: black; font-weight: 900; cursor: pointer; border: none; margin-top: 25px; transition: 0.3s; }
         button:hover { background: #fff; }
         label { display: block; text-align: left; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; }
+        /* Ensure Smartsupp is visible and above the navigation */
+        #smartsupp-widget-container {
+            z-index: 99999 !important;
+        }
+
+        @media (max-width: 768px) {
+            #smartsupp-widget-container {
+                bottom: 90px !important; /* Lifts it above the mobile gold bar */
+            }
+        }
     </style>
 </head>
 <body>
@@ -195,53 +205,46 @@
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
 // --- NEW EMAILJS CONFIGURATION ---
-const PUBLIC_KEY = "g2yPLxk1zUjO_yxUw";
-const SERVICE_ID = "service_jn8hfka";
-const TEMPLATE_ID = "template_utvksln";
 
-// 1. Initialize with your new Public Key
+// --- UPDATED EMAIL CONFIGURATION ---
+const EMAIL_PUBLIC_KEY = "Y9hlfg-yd7ebI1EI3";
+const EMAIL_SERVICE_ID = "service_z0uiqdo"; // Your new SMTP/Gmail Service
+const EMAIL_TEMPLATE_ID = "template_s3dkn8r"; // Ensure this matches your dashboard
+
 (function() {
-    emailjs.init(EMAILJS_PUBLIC_KEY);
+    emailjs.init(EMAIL_PUBLIC_KEY);
 })();
 
-// 2. The Updated Function
 function sendGeneralMessage() {
-    // 1. Capture the data
-    const recipient = document.getElementById('msgEmail').value.trim();
-    const manifest = document.getElementById('msgSubject').value.trim();
-    const body = document.getElementById('msgBody').value.trim();
     const btn = document.getElementById('msgBtn');
+    const recipient = document.getElementById('msgEmail').value.trim();
+    const subjectID = document.getElementById('msgSubject').value.trim();
+    const bodyText = document.getElementById('msgBody').value.trim();
 
-    // 2. Simple Validation
-    if (!recipient || !manifest || !body) {
-        return alert("Error: Recipient, Subject, and Message are required.");
+    if (!recipient || !bodyText) {
+        return alert("Operational Error: Recipient and Message required.");
     }
 
-    // 3. Visual UI feedback
-    btn.innerText = "ENCRYPTING & DISPATCHING...";
+    btn.innerText = "ENCRYPTING DISPATCH...";
     btn.disabled = true;
 
-    // 4. Map the parameters to your template
     const templateParams = {
         to_email: recipient,
-        manifest_id: manifest,
-        message: body,
+        manifest_id: subjectID,
+        message: bodyText,
         location: "Skyline Global Operations Hub (NYC)"
     };
 
-    // 5. SEND
-    emailjs.send('service_z0uiqdo', 'template_s3dkn8r', templateParams)
+    emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams)
         .then(() => {
-            alert('DISPATCH SUCCESS: NOTIFICATION SENT TO SATELLITE NETWORK');
+            alert("OFFICIAL DOCUMENT DISPATCHED SUCCESSFULLY");
             btn.innerText = "DISPATCH SECURE MESSAGE";
             btn.disabled = false;
             // Clear inputs
             document.getElementById('msgEmail').value = "";
             document.getElementById('msgBody').value = "";
-        })
-        .catch((err) => {
-            alert("SATELLITE ERROR: " + JSON.stringify(err));
-            btn.innerText = "DISPATCH SECURE MESSAGE";
+        }, (error) => {
+            alert("SATELLITE LINK FAILED: " + JSON.stringify(error));
             btn.disabled = false;
         });
 }
