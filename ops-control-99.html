@@ -1,259 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Smartsupp Live Chat script -->
+<head>
     <meta charset="UTF-8">
-    <title>Skyline Admin | Global Command Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skyline Admin | Operations Control</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- 1. External Tools -->
+    <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <style>
         :root { --navy: #0a1523; --gold: #c5a059; --cyan: #0ea5e9; }
-        body { background: var(--navy); color: white; font-family: 'Montserrat', sans-serif; padding: 40px; text-align: center; }
-        .panel { max-width: 450px; margin: auto; background: rgba(255,255,255,0.05); padding: 30px; border: 1px solid var(--gold); border-radius: 12px; backdrop-filter: blur(10px); }
-        input, select, button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; }
-        button { background: var(--gold); color: black; font-weight: 900; cursor: pointer; border: none; margin-top: 25px; transition: 0.3s; }
+        body { background: var(--navy); color: white; font-family: 'Montserrat', sans-serif; padding: 20px; text-align: center; }
+        .panel { max-width: 500px; margin: auto; background: rgba(255,255,255,0.05); padding: 30px; border: 1px solid var(--gold); border-radius: 12px; backdrop-filter: blur(10px); text-align: left; margin-bottom: 30px;}
+        input, select, button, textarea { width: 100%; padding: 15px; margin-top: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 1rem; }
+        
+        button { background: var(--gold); color: black; font-weight: 900; cursor: pointer; border: none; margin-top: 25px; transition: 0.3s; text-transform: uppercase; }
         button:hover { background: #fff; }
-        label { display: block; text-align: left; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; }
-        /* Ensure Smartsupp is visible and above the navigation */
-        #smartsupp-widget-container {
-            z-index: 99999 !important;
-        }
-
-        @media (max-width: 768px) {
-            #smartsupp-widget-container {
-                bottom: 90px !important; /* Lifts it above the mobile gold bar */
-            }
-        }
+        button:disabled { background: #444; color: #888; cursor: not-allowed; }
+        
+        label { display: block; text-align: left; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; font-weight: bold; }
+        
+        .asset-preview { margin: 20px 0; padding: 15px; background: #000; border: 1px solid var(--border); border-radius: 8px; text-align: center; }
+        .asset-preview img { width: 100%; max-width: 250px; border-radius: 4px; border: 1px solid var(--gold); }
+        
+        .uploadcare--widget__button_type_open { background-color: var(--gold) !important; color: #000 !important; font-weight: 900 !important; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.8rem; background: rgba(0,0,0,0.3); }
+        th, td { padding: 12px; border: 1px solid #222; text-align: left; }
+        th { color: var(--gold); }
     </style>
 </head>
 <body>
 
+    <header style="margin-bottom: 30px;">
+        <img src="logo.png" style="height: 50px; mix-blend-mode: screen;">
+        <h1 style="font-family: 'Orbitron'; font-size: 1.5rem; color: var(--gold); margin-top: 10px;">COMMAND CENTER</h1>
+    </header>
+
+    <!-- SATELLITE MAP CONTROL -->
     <div class="panel">
-        <h2 style="letter-spacing: 2px; font-family: 'Orbitron';">OPERATIONS COMMAND</h2>
-        <p style="font-size: 0.6rem; color: #888; margin-bottom: 20px;">SKYLINE GLOBAL LOGISTICS • ADMIN PORTAL</p>
+        <h2>SATELLITE POSITIONING</h2>
+        <label>MANIFEST ID</label>
+        <input type="text" id="shipID" placeholder="e.g. SK-777">
+        
+        <label>HUB LOCATION</label>
+        <input type="text" id="hubLoc" placeholder="e.g. London Terminal">
 
-        <label>TRANSIT MANIFEST ID</label>
-        <input type="text" id="shipID" placeholder="e.g. SK-10022">
-
-        <label>CURRENT HUB LOCATION</label>
-        <input type="text" id="hubLoc" placeholder="e.g. London Heathrow">
-
-        <label>TRANSIT STATUS</label>
-        <select id="shipStat">
-            <option value="IN TRANSIT">IN TRANSIT</option>
-            <option value="CUSTOMS CLEARANCE">CUSTOMS CLEARANCE</option>
-            <option value="ON HOLD">ON HOLD</option>
-            <option value="DELIVERED">DELIVERED</option>
-        </select>
-
-        <label>Latitude</label>
-        <input type="number" id="shipLat" step="0.000001" placeholder="e.g. 51.4700">
-
-        <label>Longitude</label>
-        <input type="number" id="shipLng" step="0.000001" placeholder="e.g. -0.4543">
-
-        <button id="activateBtn">ACTIVATE MANIFEST</button>
-    </div>
-
-        <!-- COMMUNICATION HUB PANEL -->
-        <div class="panel" style="margin-top: 40px;">
-            <h2 style="letter-spacing: 2px; font-family: 'Orbitron'; color: var(--gold);">COMMUNICATION HUB</h2>
-            <label for="commEmail">Customer Email</label>
-                <input type="email" id="msgEmail" placeholder="e.g. client@email.com" style="background: var(--navy); border: 1px solid var(--gold); color: white;">
-
-                <label for="msgSubject">Subject</label>
-                <input type="text" id="msgSubject" placeholder="Subject" style="background: var(--navy); border: 1px solid var(--gold); color: white;">
-
-                <label for="msgBody">Message Body</label>
-                <textarea id="msgBody" rows="7" placeholder="Type your message here..." style="background: var(--navy); border: 1px solid var(--gold); color: white; width: 100%; margin-top: 15px; border-radius: 5px; padding: 15px; resize: vertical;"></textarea>
-
-                <button id="msgBtn" style="background: var(--gold); color: black; font-weight: 900; margin-top: 25px; border: none;">DISPATCH SECURE MESSAGE</button>
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1">
+                <label>LATITUDE</label>
+                <input type="number" id="shipLat" step="any" placeholder="51.50">
+            </div>
+            <div style="flex:1">
+                <label>LONGITUDE</label>
+                <input type="number" id="shipLng" step="any" placeholder="-0.12">
+            </div>
         </div>
 
+        <button id="mapBtn" onclick="updateMap()">UPDATE SATELLITE POSITION</button>
+    </div>
+
+    <!-- COMMUNICATION HUB -->
+    <div class="panel" style="border-color: var(--cyan);">
+        <h2>COMMUNICATION HUB</h2>
+        <label>CLIENT EMAIL</label>
+        <input type="email" id="msgEmail" placeholder="client@gmail.com">
+        
+        <label>SUBJECT / MANIFEST</label>
+        <input type="text" id="msgSubject" placeholder="Institutional Update: SK-777">
+        
+        <label>MESSAGE BODY</label>
+        <textarea id="msgBody" rows="4" placeholder="Enter secure message..."></textarea>
+
+        <label>ASSET VISUAL VERIFICATION</label>
+        <div class="asset-preview">
+            <img src="card-package.jpg" alt="Asset">
+            <p style="font-size: 10px; color: var(--cyan); margin-top: 8px;">ON-CHAIN CRYPTO CARD: RAJEEVA SRIVASTAVA</p>
+        </div>
+
+        <label>ATTACH DOCUMENT (PDF/IMG)</label>
+        <div style="margin-top:10px">
+            <input type="hidden" role="uploadcare-uploader" id="docFile" data-public-key="b85809b679eb664a42ec" data-tabs="file" />
+        </div>
+        <input type="hidden" id="docURL">
+
+        <button id="msgBtn" onclick="sendBrandedEmail()">DISPATCH NOTIFICATION</button>
+    </div>
+
     <!-- INCOMING REQUESTS -->
-    <section class="incoming-requests" style="max-width: 900px; margin: 40px auto; background: rgba(255,255,255,0.06); border:1px solid #c5a059; border-radius: 12px; padding: 20px;">
-        <h2 style="color: #c5a059; margin-bottom: 16px;">Incoming Requests</h2>
-        <p style="color:#0ea5e9; font-size:0.9rem;">For support, contact: <a href="mailto:support@skylineglobalfinclogistics.com" style="color:#c5a059;">support@skylineglobalfinclogistics.com</a></p>
-        <table id="requestsTable" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background: rgba(255,255,255,0.1); text-transform: uppercase; font-size: 0.75rem;">
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Request ID</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Origin</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Destination</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Asset Class</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Weight</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Timestamp</th>
-                    <th style="padding: 10px; border: 1px solid rgba(255,255,255,0.2);">Actions</th>
-                </tr>
-            </thead>
+    <div class="panel" style="max-width: 900px;">
+        <h2>INCOMING CLIENT REQUESTS</h2>
+        <table id="reqTable">
+            <thead><tr><th>ID</th><th>ORIGIN</th><th>DESTINATION</th><th>TIMESTAMP</th></tr></thead>
             <tbody id="requeststbody"></tbody>
         </table>
-    </section>
+    </div>
 
-    <!-- 1. LOAD FIREBASE COMPAT LIBRARIES (THE FIX) -->
+    <!-- Firebase Compat -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
-        // --- CRITICAL: UPDATE THESE 3 FROM YOUR NEW ACCOUNT ---
-        const EMAILJS_PUBLIC_KEY = "g2yPLxk1zUjO_yxUw";   // Found in Account -> API Keys
-        const EMAILJS_SERVICE_ID = "service_jn8hfka";  // Found in Email Services
-        const EMAILJS_TEMPLATE_ID = "template_utvksln"; // Found in Email Templates
-        // 2. YOUR PRIVATE FIREBASE CONFIGURATION
+        // 1. FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCnRxlxUEezki8byWyLa9FljWzskEJNfDk",
             authDomain: "skyline-logistics.firebaseapp.com",
             databaseURL: "https://skyline-logistics-default-rtdb.firebaseio.com",
-            projectId: "skyline-logistics",
-            storageBucket: "skyline-logistics.firebasestorage.app",
-            messagingSenderId: "111278945331",
-            appId: "1:111278945331:web:5565f3b4504fd62ecd5f46",
-            measurementId: "G-SMF4L2VZ0K"
+            projectId: "skyline-logistics"
         };
-
-        // 3. INITIALIZE FIREBASE (COMPAT MODE)
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Incoming requests listener
-        function renderRequestsTable(snapshot) {
-            const tbody = document.getElementById('requeststbody');
-            tbody.innerHTML = '';
+        // 2. EMAILJS INIT
+        emailjs.init("g2yPLxk1zUjO_yxUw");
 
-            if (!snapshot.exists()) {
-                tbody.innerHTML = '<tr><td colspan="7" style="padding: 12px; text-align: center; color: #ccc;">No requests found</td></tr>';
-                return;
-            }
-
-            snapshot.forEach((child) => {
-                const key = child.key;
-                const request = child.val();
-                const row = document.createElement('tr');
-
-                row.innerHTML = `
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${key}</td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.origin || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.destination || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.assetClass || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.weight || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">${request.timestamp || '-'}<\/td>
-                    <td style="padding: 10px; border:1px solid rgba(255,255,255,0.25);">
-                        <button style="padding: 6px 10px; border-radius: 5px; border:none; background: #0ea5e9; color:#fff; cursor:pointer;" onclick="generateRequestId('${key}')">Generate ID</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function generateRequestId(key) {
-            const generatedId = 'MAN-' + Math.floor(100000 + Math.random() * 900000);
-            database.ref('requests/' + key).update({ generatedId })
-                .then(() => {
-                    alert('Generate ID: ' + generatedId);
-                })
-                .catch((error) => {
-                    alert('Error generating ID: ' + error.message);
-                });
-        }
-
-        database.ref('requests').on('value', (snapshot) => {
-            renderRequestsTable(snapshot);
-        }, (error) => {
-            console.error('Error loading requests:', error);
+        // 3. UPLOADCARE WIDGET
+        const widget = uploadcare.Widget('#docFile');
+        widget.onUploadComplete(info => {
+            document.getElementById('docURL').value = info.cdnUrl;
+            alert("FILE SECURED & LINKED");
         });
 
-        // 4. ACTION FUNCTION
-        document.getElementById('activateBtn').onclick = function() {
+        // 4. MAP UPDATE FUNCTION
+        function updateMap() {
             const id = document.getElementById('shipID').value.trim();
-            const loc = document.getElementById('hubLoc').value.trim();
-            const stat = document.getElementById('shipStat').value;
             const lat = parseFloat(document.getElementById('shipLat').value);
             const lng = parseFloat(document.getElementById('shipLng').value);
+            const loc = document.getElementById('hubLoc').value;
 
-            if(!id || !loc) {
-                alert("Critical Error: Transit ID and Location required.");
-                return;
-            }
+            if(!id || isNaN(lat)) return alert("Missing ID or Coordinates");
 
-            if(Number.isNaN(lat) || Number.isNaN(lng)) {
-                alert("Critical Error: Valid latitude and longitude required.");
-                return;
-            }
-
-            // Save to Firebase Cloud
             database.ref('shipments/' + id).set({
                 location: loc,
-                status: stat,
                 lat: lat,
                 lng: lng,
+                status: "IN TRANSIT",
                 updatedAt: new Date().toLocaleString()
-            })
+            }).then(() => alert("SATELLITE POSITION UPDATED"));
+        }
+
+        // 5. EMAIL DISPATCH FUNCTION
+        function sendBrandedEmail() {
+            const btn = document.getElementById('msgBtn');
+            const email = document.getElementById('msgEmail').value;
+            const doc = document.getElementById('docURL').value;
+
+            if(!email) return alert("Email Required");
+
+            btn.disabled = true;
+            btn.innerText = "SENDING...";
+
+            const params = {
+                to_email: email,
+                manifest_id: document.getElementById('msgSubject').value,
+                message: document.getElementById('msgBody').value,
+                location: document.getElementById('hubLoc').value || "Global Node",
+                doc_link: doc || "No document attached"
+            };
+
+            // service_jn8hfka matches your Gmail screenshot
+            emailjs.send("service_jn8hfka", "template_utvksln", params)
             .then(() => {
-                alert("SUCCESS: Manifest " + id + " is now LIVE globally.");
-                document.getElementById('shipID').value = "";
-                document.getElementById('hubLoc').value = "";
-                document.getElementById('shipLat').value = "";
-                document.getElementById('shipLng').value = "";
-                document.getElementById('shipStat').value = "IN TRANSIT";
+                alert("OFFICIAL DOCUMENT DISPATCHED");
+                btn.disabled = false;
+                btn.innerText = "DISPATCH NOTIFICATION";
             })
-            .catch((error) => {
-                alert("Database Connection Error: " + error.message);
+            .catch(err => {
+                alert("ERROR: " + err.text);
+                btn.disabled = false;
+                btn.innerText = "DISPATCH NOTIFICATION";
             });
-        };
+        }
+
+        // 6. REQUESTS FEED
+        database.ref('requests').on('value', (snap) => {
+            const tbody = document.getElementById('requeststbody');
+            tbody.innerHTML = '';
+            snap.forEach(child => {
+                const d = child.val();
+                tbody.innerHTML += `<tr><td>${child.key}</td><td>${d.origin}</td><td>${d.dest}</td><td>${d.time}</td></tr>`;
+            });
+        });
     </script>
-</script>
-
-<!-- EmailJS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-// --- NEW EMAILJS CONFIGURATION ---
-
-// Ensure this matches the key from your NEW account exactly
-emailjs.init("g2yPLxk1zUjO_yxUw");
-
-function sendGeneralMessage() {
-    const btn = document.getElementById('msgBtn');
-    const recipient = document.getElementById('msgEmail').value.trim();
-    const subjectID = document.getElementById('msgSubject').value.trim();
-    const bodyText = document.getElementById('msgBody').value.trim();
-
-    if (!recipient || !bodyText) {
-        return alert("Operational Error: Recipient and Message required.");
-    }
-
-    btn.innerText = "ENCRYPTING DISPATCH...";
-    btn.disabled = true;
-
-    const templateParams = {
-        to_email: recipient,
-        manifest_id: subjectID,
-        message: bodyText,
-        location: "Skyline Global Operations Hub (NYC)"
-    };
-
-    // Double check your Service ID is exactly what you see in the dashboard
-    emailjs.send("service_z0uiqdo", "template_s3dkn8r", templateParams)
-    .then(() => {
-        alert("OFFICIAL DOCUMENT DISPATCHED SUCCESSFULLY");
-        btn.innerText = "DISPATCH SECURE MESSAGE";
-        btn.disabled = false;
-        // Clear inputs
-        document.getElementById('msgEmail').value = "";
-        document.getElementById('msgBody').value = "";
-    })
-    .catch((error) => {
-        // This will now show you more detail if it fails again
-        console.error("EmailJS Error:", error);
-        alert("SATELLITE LINK FAILED: " + error.text);
-        btn.disabled = false;
-    });
-}
-
-// Attach event listener to the button
-document.addEventListener('DOMContentLoaded', function() {
-    const btn = document.getElementById('msgBtn');
-    if (btn) {
-        btn.addEventListener('click', sendGeneralMessage);
-    }
-});
-</script>
 </body>
 </html>
