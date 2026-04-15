@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skyline Admin | Global Command Center</title>
+    <title>Skyline Admin | Operations Command Center</title>
     
     <!-- Professional Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 1. EXTERNAL TOOLS -->
+    <!-- External Tools -->
     <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
@@ -16,101 +16,116 @@
         :root { --navy: #0a1523; --gold: #c5a059; --cyan: #0ea5e9; }
         body { background: var(--navy); color: white; font-family: 'Montserrat', sans-serif; padding: 20px; text-align: center; }
         
-        .admin-container { max-width: 800px; margin: auto; }
+        .admin-container { max-width: 850px; margin: auto; }
         
         .panel { 
-            background: rgba(255, 255, 255, 0.05); padding: 30px; border: 1px solid var(--gold); 
+            background: rgba(255, 255, 255, 0.05); padding: 35px; border: 1px solid var(--gold); 
             border-radius: 12px; backdrop-filter: blur(10px); text-align: left; margin-bottom: 30px;
         }
         
         h2 { font-family: 'Orbitron'; color: var(--gold); font-size: 1.1rem; margin-bottom: 20px; letter-spacing: 2px; }
-        label { display: block; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; font-weight: bold; }
+        label { display: block; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: bold; }
         
         input, select, textarea { width: 100%; padding: 15px; margin-top: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 1rem; }
         
-        /* Asset Preview */
-        .asset-preview { margin: 20px 0; padding: 15px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; }
-        .asset-preview img { width: 100%; max-width: 280px; border-radius: 4px; border: 1px solid var(--gold); }
+        /* Asset Visual Area */
+        .asset-preview { margin: 25px 0; padding: 20px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; text-align: center; }
+        .asset-preview img { width: 100%; max-width: 300px; border-radius: 5px; border: 1px solid var(--gold); filter: contrast(1.1); }
 
-        /* Buttons */
+        /* Action Buttons */
         .btn-dispatch { 
-            width: 100%; padding: 20px; background: var(--gold); border: none; color: black; 
-            font-weight: 900; cursor: pointer; margin-top: 25px; text-transform: uppercase; letter-spacing: 2px;
+            width: 100%; padding: 22px; background: var(--gold); border: none; color: black; 
+            font-weight: 900; cursor: pointer; margin-top: 30px; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;
         }
-        .btn-dispatch:hover { background: #fff; }
-        .btn-dispatch:disabled { background: #444; color: #888; }
+        .btn-dispatch:hover { background: #fff; transform: translateY(-2px); }
+        .btn-dispatch:disabled { background: #444; color: #888; cursor: not-allowed; }
 
-        /* Uploadcare Button Styling */
+        /* Customization for the Upload Button */
         .uploadcare--widget__button_type_open { background-color: var(--gold) !important; color: #000 !important; font-weight: 900 !important; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.8rem; background: rgba(0,0,0,0.3); }
-        th, td { padding: 12px; border: 1px solid #222; text-align: left; }
-        th { color: var(--gold); }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 0.85rem; background: rgba(0,0,0,0.4); }
+        th, td { padding: 15px; border: 1px solid #222; text-align: left; }
+        th { color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
     <div class="admin-container">
         
-        <header style="margin-bottom: 40px;">
-            <img src="logo.png" style="height: 60px; mix-blend-mode: screen; filter: brightness(1.2);">
-            <h1 style="font-family: 'Orbitron'; color: var(--gold); margin-top: 10px;">OPERATIONS COMMAND</h1>
+        <header style="margin-bottom: 50px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+            <img src="logo.png" style="height: 65px; mix-blend-mode: screen; filter: brightness(1.2);">
+            <h1 style="font-family: 'Orbitron'; color: var(--gold); margin-top: 15px; letter-spacing: 4px;">OPERATIONS COMMAND</h1>
+            <p style="font-size: 0.7rem; color: var(--cyan); letter-spacing: 3px;">INSTITUTIONAL ASSET DISPATCH CENTER</p>
         </header>
 
-        <!-- A. COMMUNICATION HUB -->
+        <!-- MODULE 1: COMMUNICATION HUB -->
         <div class="panel">
             <h2>COMMUNICATION HUB</h2>
-            <label>CLIENT EMAIL</label>
-            <input type="email" id="msgEmail" placeholder="recipient@client.com">
+            
+            <label>CLIENT RECIPIENT EMAIL</label>
+            <input type="email" id="msgEmail" placeholder="client-node@global.com">
 
-            <label>SUBJECT / MANIFEST ID</label>
+            <label>MANIFEST REFERENCE (SUBJECT)</label>
             <input type="text" id="msgSubject" placeholder="Institutional Update: SK-7700">
 
-            <label>MESSAGE BODY</label>
-            <textarea id="msgBody" rows="4" placeholder="Enter secure message content..."></textarea>
+            <label>SECURE MESSAGE BODY</label>
+            <textarea id="msgBody" rows="5" placeholder="Enter formal operational update here..."></textarea>
 
-            <!-- ASSET PREVIEW -->
-            <label>VISUAL ASSET VERIFICATION</label>
+            <!-- VISUAL VERIFICATION -->
+            <label>ASSET VISUAL VERIFICATION</label>
             <div class="asset-preview">
+                <!-- PULLS FROM YOUR GITHUB -->
                 <img src="card-package.jpg" alt="Asset Preview">
-                <p style="font-size: 9px; color: var(--cyan); margin-top: 10px;">ITEM: ON-CHAIN CRYPTO CARD (RAJEEVA SRIVASTAVA)</p>
+                <p style="font-size: 10px; color: var(--cyan); margin-top: 12px; letter-spacing: 1.5px;">IDENTIFIED ASSET: ON-CHAIN CRYPTO CARD</p>
             </div>
 
-            <!-- UPLOAD DOCUMENT -->
+            <!-- DOCUMENT ATTACHMENT -->
             <label>ATTACH OFFICIAL DOCUMENT (PDF/IMG)</label>
-            <div style="margin-top: 10px;">
-                <input type="hidden" role="uploadcare-uploader" id="docFile" data-public-key="b85809b679eb664a42ec" data-tabs="file" />
+            <div style="margin-top: 15px;">
+                <input type="hidden" role="uploadcare-uploader" id="docFile" 
+                       data-public-key="b85809b679eb664a42ec" 
+                       data-tabs="file" />
             </div>
+            <p id="uploadStatus" style="font-size: 0.7rem; color: var(--cyan); margin-top: 8px; font-weight: bold;">AWAITING FILE SELECTION...</p>
             <input type="hidden" id="docURL">
 
-            <button class="btn-dispatch" id="msgBtn" onclick="sendBrandedEmail()">DISPATCH NOTIFICATION</button>
+            <button class="btn-dispatch" id="msgBtn" onclick="sendBrandedEmail()">DISPATCH SECURE NOTIFICATION</button>
         </div>
 
-        <!-- B. SATELLITE POSITIONING -->
+        <!-- MODULE 2: SATELLITE POSITIONING -->
         <div class="panel" style="border-color: var(--cyan);">
             <h2>SATELLITE POSITIONING</h2>
             <label>MANIFEST ID</label>
             <input type="text" id="shipID" placeholder="SK-7700">
 
-            <label>HUB LOCATION NAME</label>
-            <input type="text" id="hubLoc" placeholder="e.g. Zurich Central Hub">
+            <label>CURRENT HUB NODE NAME</label>
+            <input type="text" id="hubLoc" placeholder="e.g. Zurich Central Logistics Hub">
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div><label>LATITUDE</label><input type="number" id="shipLat" step="any" placeholder="40.7128"></div>
                 <div><label>LONGITUDE</label><input type="number" id="shipLng" step="any" placeholder="-74.0060"></div>
             </div>
 
-            <button class="btn-dispatch" style="background: var(--cyan); color: white;" onclick="updateMap()">UPDATE GLOBAL MAP</button>
+            <button class="btn-dispatch" style="background: var(--cyan); color: white;" onclick="updateSatelliteMap()">UPDATE GLOBAL SATELLITE MAP</button>
+        </div>
+
+        <!-- MODULE 3: REQUEST FEED -->
+        <div class="panel">
+            <h2>INCOMING CLIENT REQUESTS</h2>
+            <table id="reqTable">
+                <thead><tr><th>MANIFEST ID</th><th>ORIGIN</th><th>DESTINATION</th><th>TIMESTAMP</th></tr></thead>
+                <tbody id="requeststbody"></tbody>
+            </table>
         </div>
 
     </div>
 
-    <!-- 2. FIREBASE LIBRARIES -->
+    <!-- FIREBASE & CORE LOGIC -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
-        // FIREBASE SETUP
+        // 1. FIREBASE INITIALIZATION
         const firebaseConfig = {
             apiKey: "AIzaSyCnRxlxUEezki8byWyLa9FljWzskEJNfDk",
             authDomain: "skyline-logistics.firebaseapp.com",
@@ -120,23 +135,25 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // EMAILJS INIT (Using your new key)
-        emailjs.init("Y9hlfg-yd7ebI1EI3");
+        // 2. EMAILJS INITIALIZATION (Your Working Key)
+        emailjs.init("g2yPLxk1zUjO_yxUw");
 
-        // UPLOADCARE LOGIC
+        // 3. UPLOADCARE LOGIC
         const widget = uploadcare.Widget('#docFile');
         widget.onUploadComplete(function(info) {
             document.getElementById('docURL').value = info.cdnUrl;
-            alert("FILE SECURED: Institutional document linked.");
+            document.getElementById('uploadStatus').innerText = "DOCUMENT VERIFIED & ATTACHED";
+            document.getElementById('uploadStatus').style.color = "#22c55e";
+            alert("FILE SECURED: Document linked successfully.");
         });
 
-        // DISPATCH EMAIL FUNCTION
+        // 4. EMAIL DISPATCH LOGIC
         function sendBrandedEmail() {
             const btn = document.getElementById('msgBtn');
-            const email = document.getElementById('msgEmail').value;
+            const email = document.getElementById('msgEmail').value.trim();
             const doc = document.getElementById('docURL').value;
 
-            if (!email) return alert("Error: Recipient Required");
+            if (!email) return alert("ERROR: Recipient Email Required.");
 
             btn.innerText = "ENCRYPTING DISPATCH...";
             btn.disabled = true;
@@ -145,43 +162,56 @@
                 to_email: email,
                 manifest_id: document.getElementById('msgSubject').value,
                 message: document.getElementById('msgBody').value,
-                location: document.getElementById('hubLoc').value || "Global Node",
-                doc_link: doc || "No digital files attached."
+                location: document.getElementById('hubLoc').value || "Global Node Hub",
+                doc_link: doc ? doc : "No additional digital files attached."
             };
 
-            // Using your working Service ID
+            // Using your validated Service ID
             emailjs.send("service_z0uiqdo", "template_s3dkn8r", params)
             .then(() => {
-                alert("SUCCESS: Branded Email Dispatched.");
-                btn.innerText = "DISPATCH NOTIFICATION";
+                alert("SUCCESS: Branded Operational Email Dispatched.");
+                btn.innerText = "DISPATCH SECURE NOTIFICATION";
                 btn.disabled = false;
+                // Clear file for next send
                 document.getElementById('docURL').value = "";
                 widget.value(null);
+                document.getElementById('uploadStatus').innerText = "AWAITING FILE SELECTION...";
+                document.getElementById('uploadStatus').style.color = "var(--cyan)";
             })
             .catch((err) => {
-                alert("SATELLITE ERROR: " + JSON.stringify(err));
+                alert("SATELLITE LINK ERROR: " + JSON.stringify(err));
                 btn.disabled = false;
-                btn.innerText = "DISPATCH NOTIFICATION";
+                btn.innerText = "DISPATCH SECURE NOTIFICATION";
             });
         }
 
-        // MAP UPDATE FUNCTION
-        function updateMap() {
+        // 5. MAP POSITIONING LOGIC
+        function updateSatelliteMap() {
             const id = document.getElementById('shipID').value.trim();
             const lat = parseFloat(document.getElementById('shipLat').value);
             const lng = parseFloat(document.getElementById('shipLng').value);
             const loc = document.getElementById('hubLoc').value;
 
-            if(!id || isNaN(lat)) return alert("Error: ID and Coordinates Required");
+            if(!id || isNaN(lat)) return alert("CRITICAL: ID and GPS Coordinates Required.");
 
-            database.ref('shipments/' + id).update({
+            database.ref('shipments/' + id).set({
                 location: loc,
                 lat: lat,
                 lng: lng,
                 updatedAt: new Date().toLocaleString(),
                 status: "IN TRANSIT"
-            }).then(() => alert("SATELLITE POSITION UPDATED FOR " + id));
+            }).then(() => alert("SATELLITE POSITION LOCKED: Manifest " + id + " updated on map."));
         }
+
+        // 6. REAL-TIME REQUEST LISTENER
+        database.ref('requests').on('value', (snap) => {
+            const tbody = document.getElementById('requeststbody');
+            tbody.innerHTML = '';
+            snap.forEach(child => {
+                const d = child.val();
+                tbody.innerHTML += `<tr><td>${child.key}</td><td>${d.origin}</td><td>${d.dest}</td><td>${d.time}</td></tr>`;
+            });
+        });
     </script>
 </body>
 </html>
