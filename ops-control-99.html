@@ -3,31 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skyline Admin | Operations Control</title>
+    <title>Skyline Admin | Global Command Center</title>
     
+    <!-- Professional Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 1. External Tools -->
+    <!-- 1. EXTERNAL TOOLS -->
     <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
         :root { --navy: #0a1523; --gold: #c5a059; --cyan: #0ea5e9; }
         body { background: var(--navy); color: white; font-family: 'Montserrat', sans-serif; padding: 20px; text-align: center; }
-        .panel { max-width: 500px; margin: auto; background: rgba(255,255,255,0.05); padding: 30px; border: 1px solid var(--gold); border-radius: 12px; backdrop-filter: blur(10px); text-align: left; margin-bottom: 30px;}
-        input, select, button, textarea { width: 100%; padding: 15px; margin-top: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 1rem; }
         
-        button { background: var(--gold); color: black; font-weight: 900; cursor: pointer; border: none; margin-top: 25px; transition: 0.3s; text-transform: uppercase; }
-        button:hover { background: #fff; }
-        button:disabled { background: #444; color: #888; cursor: not-allowed; }
+        .admin-container { max-width: 800px; margin: auto; }
         
-        label { display: block; text-align: left; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; font-weight: bold; }
+        .panel { 
+            background: rgba(255, 255, 255, 0.05); padding: 30px; border: 1px solid var(--gold); 
+            border-radius: 12px; backdrop-filter: blur(10px); text-align: left; margin-bottom: 30px;
+        }
         
-        .asset-preview { margin: 20px 0; padding: 15px; background: #000; border: 1px solid var(--border); border-radius: 8px; text-align: center; }
-        .asset-preview img { width: 100%; max-width: 250px; border-radius: 4px; border: 1px solid var(--gold); }
+        h2 { font-family: 'Orbitron'; color: var(--gold); font-size: 1.1rem; margin-bottom: 20px; letter-spacing: 2px; }
+        label { display: block; font-size: 0.7rem; color: var(--cyan); margin-top: 15px; letter-spacing: 1px; text-transform: uppercase; font-weight: bold; }
         
+        input, select, textarea { width: 100%; padding: 15px; margin-top: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; outline: none; font-size: 1rem; }
+        
+        /* Asset Preview */
+        .asset-preview { margin: 20px 0; padding: 15px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; }
+        .asset-preview img { width: 100%; max-width: 280px; border-radius: 4px; border: 1px solid var(--gold); }
+
+        /* Buttons */
+        .btn-dispatch { 
+            width: 100%; padding: 20px; background: var(--gold); border: none; color: black; 
+            font-weight: 900; cursor: pointer; margin-top: 25px; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .btn-dispatch:hover { background: #fff; }
+        .btn-dispatch:disabled { background: #444; color: #888; }
+
+        /* Uploadcare Button Styling */
         .uploadcare--widget__button_type_open { background-color: var(--gold) !important; color: #000 !important; font-weight: 900 !important; }
-        
+
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.8rem; background: rgba(0,0,0,0.3); }
         th, td { padding: 12px; border: 1px solid #222; text-align: left; }
         th { color: var(--gold); }
@@ -35,76 +50,67 @@
 </head>
 <body>
 
-    <header style="margin-bottom: 30px;">
-        <img src="logo.png" style="height: 50px; mix-blend-mode: screen;">
-        <h1 style="font-family: 'Orbitron'; font-size: 1.5rem; color: var(--gold); margin-top: 10px;">COMMAND CENTER</h1>
-    </header>
-
-    <!-- SATELLITE MAP CONTROL -->
-    <div class="panel">
-        <h2>SATELLITE POSITIONING</h2>
-        <label>MANIFEST ID</label>
-        <input type="text" id="shipID" placeholder="e.g. SK-777">
+    <div class="admin-container">
         
-        <label>HUB LOCATION</label>
-        <input type="text" id="hubLoc" placeholder="e.g. London Terminal">
+        <header style="margin-bottom: 40px;">
+            <img src="logo.png" style="height: 60px; mix-blend-mode: screen; filter: brightness(1.2);">
+            <h1 style="font-family: 'Orbitron'; color: var(--gold); margin-top: 10px;">OPERATIONS COMMAND</h1>
+        </header>
 
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1">
-                <label>LATITUDE</label>
-                <input type="number" id="shipLat" step="any" placeholder="51.50">
+        <!-- A. COMMUNICATION HUB -->
+        <div class="panel">
+            <h2>COMMUNICATION HUB</h2>
+            <label>CLIENT EMAIL</label>
+            <input type="email" id="msgEmail" placeholder="recipient@client.com">
+
+            <label>SUBJECT / MANIFEST ID</label>
+            <input type="text" id="msgSubject" placeholder="Institutional Update: SK-7700">
+
+            <label>MESSAGE BODY</label>
+            <textarea id="msgBody" rows="4" placeholder="Enter secure message content..."></textarea>
+
+            <!-- ASSET PREVIEW -->
+            <label>VISUAL ASSET VERIFICATION</label>
+            <div class="asset-preview">
+                <img src="card-package.jpg" alt="Asset Preview">
+                <p style="font-size: 9px; color: var(--cyan); margin-top: 10px;">ITEM: ON-CHAIN CRYPTO CARD (RAJEEVA SRIVASTAVA)</p>
             </div>
-            <div style="flex:1">
-                <label>LONGITUDE</label>
-                <input type="number" id="shipLng" step="any" placeholder="-0.12">
+
+            <!-- UPLOAD DOCUMENT -->
+            <label>ATTACH OFFICIAL DOCUMENT (PDF/IMG)</label>
+            <div style="margin-top: 10px;">
+                <input type="hidden" role="uploadcare-uploader" id="docFile" data-public-key="b85809b679eb664a42ec" data-tabs="file" />
             </div>
+            <input type="hidden" id="docURL">
+
+            <button class="btn-dispatch" id="msgBtn" onclick="sendBrandedEmail()">DISPATCH NOTIFICATION</button>
         </div>
 
-        <button id="mapBtn" onclick="updateMap()">UPDATE SATELLITE POSITION</button>
-    </div>
+        <!-- B. SATELLITE POSITIONING -->
+        <div class="panel" style="border-color: var(--cyan);">
+            <h2>SATELLITE POSITIONING</h2>
+            <label>MANIFEST ID</label>
+            <input type="text" id="shipID" placeholder="SK-7700">
 
-    <!-- COMMUNICATION HUB -->
-    <div class="panel" style="border-color: var(--cyan);">
-        <h2>COMMUNICATION HUB</h2>
-        <label>CLIENT EMAIL</label>
-        <input type="email" id="msgEmail" placeholder="client@gmail.com">
-        
-        <label>SUBJECT / MANIFEST</label>
-        <input type="text" id="msgSubject" placeholder="Institutional Update: SK-777">
-        
-        <label>MESSAGE BODY</label>
-        <textarea id="msgBody" rows="4" placeholder="Enter secure message..."></textarea>
+            <label>HUB LOCATION NAME</label>
+            <input type="text" id="hubLoc" placeholder="e.g. Zurich Central Hub">
 
-        <label>ASSET VISUAL VERIFICATION</label>
-        <div class="asset-preview">
-            <img src="card-package.jpg" alt="Asset">
-            <p style="font-size: 10px; color: var(--cyan); margin-top: 8px;">ON-CHAIN CRYPTO CARD: RAJEEVA SRIVASTAVA</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div><label>LATITUDE</label><input type="number" id="shipLat" step="any" placeholder="40.7128"></div>
+                <div><label>LONGITUDE</label><input type="number" id="shipLng" step="any" placeholder="-74.0060"></div>
+            </div>
+
+            <button class="btn-dispatch" style="background: var(--cyan); color: white;" onclick="updateMap()">UPDATE GLOBAL MAP</button>
         </div>
 
-        <label>ATTACH DOCUMENT (PDF/IMG)</label>
-        <div style="margin-top:10px">
-            <input type="hidden" role="uploadcare-uploader" id="docFile" data-public-key="b85809b679eb664a42ec" data-tabs="file" />
-        </div>
-        <input type="hidden" id="docURL">
-
-        <button id="msgBtn" onclick="sendBrandedEmail()">DISPATCH NOTIFICATION</button>
     </div>
 
-    <!-- INCOMING REQUESTS -->
-    <div class="panel" style="max-width: 900px;">
-        <h2>INCOMING CLIENT REQUESTS</h2>
-        <table id="reqTable">
-            <thead><tr><th>ID</th><th>ORIGIN</th><th>DESTINATION</th><th>TIMESTAMP</th></tr></thead>
-            <tbody id="requeststbody"></tbody>
-        </table>
-    </div>
-
-    <!-- Firebase Compat -->
+    <!-- 2. FIREBASE LIBRARIES -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
-        // 1. FIREBASE CONFIG
+        // FIREBASE SETUP
         const firebaseConfig = {
             apiKey: "AIzaSyCnRxlxUEezki8byWyLa9FljWzskEJNfDk",
             authDomain: "skyline-logistics.firebaseapp.com",
@@ -114,76 +120,68 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // 2. EMAILJS INIT
-        emailjs.init("g2yPLxk1zUjO_yxUw");
+        // EMAILJS INIT (Using your new key)
+        emailjs.init("Y9hlfg-yd7ebI1EI3");
 
-        // 3. UPLOADCARE WIDGET
+        // UPLOADCARE LOGIC
         const widget = uploadcare.Widget('#docFile');
-        widget.onUploadComplete(info => {
+        widget.onUploadComplete(function(info) {
             document.getElementById('docURL').value = info.cdnUrl;
-            alert("FILE SECURED & LINKED");
+            alert("FILE SECURED: Institutional document linked.");
         });
 
-        // 4. MAP UPDATE FUNCTION
-        function updateMap() {
-            const id = document.getElementById('shipID').value.trim();
-            const lat = parseFloat(document.getElementById('shipLat').value);
-            const lng = parseFloat(document.getElementById('shipLng').value);
-            const loc = document.getElementById('hubLoc').value;
-
-            if(!id || isNaN(lat)) return alert("Missing ID or Coordinates");
-
-            database.ref('shipments/' + id).set({
-                location: loc,
-                lat: lat,
-                lng: lng,
-                status: "IN TRANSIT",
-                updatedAt: new Date().toLocaleString()
-            }).then(() => alert("SATELLITE POSITION UPDATED"));
-        }
-
-        // 5. EMAIL DISPATCH FUNCTION
+        // DISPATCH EMAIL FUNCTION
         function sendBrandedEmail() {
             const btn = document.getElementById('msgBtn');
             const email = document.getElementById('msgEmail').value;
             const doc = document.getElementById('docURL').value;
 
-            if(!email) return alert("Email Required");
+            if (!email) return alert("Error: Recipient Required");
 
+            btn.innerText = "ENCRYPTING DISPATCH...";
             btn.disabled = true;
-            btn.innerText = "SENDING...";
 
             const params = {
                 to_email: email,
                 manifest_id: document.getElementById('msgSubject').value,
                 message: document.getElementById('msgBody').value,
                 location: document.getElementById('hubLoc').value || "Global Node",
-                doc_link: doc || "No document attached"
+                doc_link: doc || "No digital files attached."
             };
 
-            // service_jn8hfka matches your Gmail screenshot
-            emailjs.send("service_jn8hfka", "template_utvksln", params)
+            // Using your working Service ID
+            emailjs.send("service_z0uiqdo", "template_s3dkn8r", params)
             .then(() => {
-                alert("OFFICIAL DOCUMENT DISPATCHED");
-                btn.disabled = false;
+                alert("SUCCESS: Branded Email Dispatched.");
                 btn.innerText = "DISPATCH NOTIFICATION";
+                btn.disabled = false;
+                document.getElementById('docURL').value = "";
+                widget.value(null);
             })
-            .catch(err => {
-                alert("ERROR: " + err.text);
+            .catch((err) => {
+                alert("SATELLITE ERROR: " + JSON.stringify(err));
                 btn.disabled = false;
                 btn.innerText = "DISPATCH NOTIFICATION";
             });
         }
 
-        // 6. REQUESTS FEED
-        database.ref('requests').on('value', (snap) => {
-            const tbody = document.getElementById('requeststbody');
-            tbody.innerHTML = '';
-            snap.forEach(child => {
-                const d = child.val();
-                tbody.innerHTML += `<tr><td>${child.key}</td><td>${d.origin}</td><td>${d.dest}</td><td>${d.time}</td></tr>`;
-            });
-        });
+        // MAP UPDATE FUNCTION
+        function updateMap() {
+            const id = document.getElementById('shipID').value.trim();
+            const lat = parseFloat(document.getElementById('shipLat').value);
+            const lng = parseFloat(document.getElementById('shipLng').value);
+            const loc = document.getElementById('hubLoc').value;
+
+            if(!id || isNaN(lat)) return alert("Error: ID and Coordinates Required");
+
+            database.ref('shipments/' + id).update({
+                location: loc,
+                lat: lat,
+                lng: lng,
+                updatedAt: new Date().toLocaleString(),
+                status: "IN TRANSIT"
+            }).then(() => alert("SATELLITE POSITION UPDATED FOR " + id));
+        }
     </script>
 </body>
 </html>
